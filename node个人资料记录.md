@@ -567,7 +567,7 @@ app.use(express.json); //前端传值必须为json raw
 通过判断res.headers.ty来进行判断前端的处理方法
 ```
 
-***10、路由器(跳转不同的接口，方法统一)***
+##### ***10、路由器(跳转不同的接口，方法统一)***
 
 ```
 router.js
@@ -599,6 +599,297 @@ localhost/api/login
 ##### ***1、安装***
 
 ```
-
+安装地址:https://www.mongodb.com/download-center/community
+菜鸟教程:https://www.runoob.com/mongodb/mongodb-window-install.html
+参考菜鸟教程
 ```
 
+##### ***2、配置环境变量***
+
+```
+右键我的电脑-属性-高级系统设置-环境变量-双击path-新建-Mongodb的安装路径-保存
+```
+
+##### ***3、检测是否已安装***
+
+```
+>mongod --version
+
+Build Info: {
+    "version": "4.4.4",
+    "gitVersion": "8db30a63db1a9d84bdcad0c83369623f708e0397",
+    "modules": [],
+    "allocator": "tcmalloc",
+    "environment": {
+        "distmod": "windows",
+        "distarch": "x86_64",
+        "target_arch": "x86_64"
+    }
+}
+```
+
+##### ***4、去C盘建立文件夹***（数据库存储路径）
+
+```
+data\db   data文件及 以及 data文件下面的db文件夹
+```
+
+##### ***5、启动和关闭Mongdb***
+
+```
+cmd中输入 mongod  开启
+```
+
+```
+关闭cmd窗口代表Mongdb已关闭
+```
+
+##### ***6、修改默认的数据库存储路径(不推荐)***
+
+```
+mongod --dbpath=数据库存储路径
+```
+
+##### ***7、连接和退出数据库***
+
+```
+重新打开一个cmd窗口
+输入指令mongo连接
+输入指令exit退出
+```
+
+##### ***8、基本命令***
+
+```
+show dbs --查看显示所有的数据库
+db --查看当前连接的数据库，默认为test，但是实际上用(show dbs)显示所有数据库的时候，是没有test的，是因为此时的test还没有数据，只有插入数据的时候，才能显示
+use 数据库名称 --切换到指定的数据库，如果没有，则新建  
+db.students.insertOne({'name:'caoxiong'}) --插入数据 students可以任意命名，它是一个集合，里面可以存储数据，集合等等，代表的是一张数据表
+show collections --查看当前数据库的集合
+db.students.find() --查询所有的students里面的数据
+```
+
+## 通过Node来操作Mongdb
+
+##### ***1、使用第三方moogoose来操作MongoDB***
+
+```
+http://www.mongoosejs.net/docs/index.html
+```
+
+##### ***2、安装指令***
+
+```
+ npm install mongoose
+```
+
+##### ***3、实例***
+
+```
+const mongoose = require('mongoose');
+//连接数据库
+mongoose.connect('mongodb://localhost/test');
+//创建一个模型 ---创建一张表cat  name为表头
+const Cat = mongoose.model('Cat', { name: String });
+//创建实例
+const kitty = new Cat({ name: '曹雄s' });
+//执行
+//插入数据
+kitty.save((err) => {
+    if (err) {
+        console.log('失败')
+    } else {
+        console.log('成功')
+    }
+})
+```
+
+##### ***4、官方指南***
+
+```
+// 1.引包
+// 注意：按照后才能require使用
+var mongoose = require('mongoose');
+
+// 拿到schema图表
+var Schema = mongoose.Schema;
+
+// 2.连接数据库
+// 指定连接数据库后不需要存在，当你插入第一条数据库后会自动创建数据库
+mongoose.connect('mongodb://localhost/test');
+
+// 3.设计集合结构（表结构）
+// 用户表
+var userSchema = new Schema({
+	username: { //姓名
+		type: String,
+		require: true //添加约束，保证数据的完整性，让数据按规矩统一
+	},
+	password: {
+		type: String,
+		require: true
+	},
+	email: {
+		type: String
+	}
+});
+
+// 4.将文档结构发布为模型
+// mongoose.model方法就是用来将一个架构发布为 model
+// 		第一个参数：传入一个大写名词单数字符串用来表示你的数据库的名称
+// 					mongoose 会自动将大写名词的字符串生成 小写复数 的集合名称
+// 					例如 这里会变成users集合名称
+// 		第二个参数：架构
+// 	返回值：模型构造函数
+var User = mongoose.model('User', userSchema);
+
+//增加数据
+var admin = new User({
+    username: '123',
+    password: '2',
+    email: '1',
+})
+//err有值的时候 为失败 没值为成功 ret表示你存储的数据 
+admin.save((err,ret) => {
+    if (err) {
+        console.log('失败')
+    } else {
+        console.log('成功')
+    }
+})
+```
+
+##### ***5、添加数据***(save)
+
+```
+save()
+//实例
+admin.save((err,ret) => {
+    if (err) {
+        console.log('失败')
+    } else {
+        console.log('成功')
+    }
+})
+```
+
+##### ***6、查询数据(find)***
+
+```
+//查询所有：
+User.find(function(err,ret){
+	if(err){
+		console.log('查询失败');
+	}else{
+		console.log(ret);
+	}
+});
+```
+
+```
+// 根据条件查询
+User.find({ username:'xiaoxiao' },function(err,ret){
+	if(err){
+		console.log('查询失败');
+	}else{
+		console.log(ret);
+	}
+});
+```
+
+```
+// 按照条件查询单个，查询出来的数据是一个对象（{}）
+// 没有条件查询使用findOne方法，查询的是表中的第一条数据
+User.findOne({
+	username: 'xiaoxiao'
+}, function(err, ret) {
+	if (err) {
+		console.log('查询失败');
+	} else {
+		console.log(ret);
+	}
+});
+```
+
+##### ***7、更新数据***
+
+```
+//更新所有
+User.remove(conditions,doc,[options],[callback]);
+```
+
+```
+//根据指定条件更新一个
+User.FindOneAndUpdate([conditions],[update],[options],[callback]);
+```
+
+```
+// 更新	根据id来修改表数据
+User.findByIdAndUpdate('5e6c5264fada77438c45dfcd', {
+	username: 'junjun'
+}, function(err, ret) {
+	if (err) {
+		console.log('更新失败');
+	} else {
+		console.log('更新成功');
+	}
+});
+```
+
+##### ***8、删除数据***
+
+```
+//根据条件删除所有
+User.remove({
+	username: 'xiaoxiao'
+}, function(err, ret) {
+	if (err) {
+		console.log('删除失败');
+	} else {
+		console.log('删除成功');
+		console.log(ret);
+	}
+});
+```
+
+```
+//根据条件删除一个
+Model.findOneAndRemove(conditions,[options],[callback]);
+```
+
+```
+//根据id删除一个
+Model0.findByIdAndRemove(id,[options],[callback]);
+```
+
+## 通过Node操作mysql
+
+##### ***1、安装mysql***
+
+```
+npm i mysql
+```
+
+##### ***2、实例***
+
+```
+var mysql = require('mysql');
+//1、创建数据库
+var connection = mysql.createConnection({
+  host     : 'localhost',
+  user     : 'me',
+  password : 'secret',
+  database : 'my_db'//数据库
+});
+ //2、连接数据库
+connection.connect();
+ //3、执行数据操作  SELECT 1 + 1 AS solution数据库指令 这个地方只要写入增删改查的数据库指令即可
+connection.query('SELECT 1 + 1 AS solution', function (error, results, fields) {
+  if (error) throw error; //失败抛出错误
+  console.log('The solution is: ', results[0].solution);
+});
+ 4、关闭数据库
+connection.end();
+```
+
+## 爬虫
