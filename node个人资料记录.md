@@ -594,3 +594,11 @@ app.use('/api',router)
 localhost/api/login
 ```
 
+## Mongodb的使用
+
+##### ***1、安装***
+
+```
+
+```
+
