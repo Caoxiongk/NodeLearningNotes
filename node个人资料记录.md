@@ -893,3 +893,42 @@ connection.end();
 ```
 
 ## 爬虫
+
+```
+const http = require('http');
+const cheerio = require('cheerio');
+const fs = require('fs');
+//要请求的地址
+let urlCrawler = 'http://www.ip3q.com/e/action/ListInfo.php?&classid=90&ph=1&slx=%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E6%A8%A1%E6%9D%BF';
+const studien = require('./index01.js');
+
+//请求地址
+http.get(urlCrawler, (res) => {
+    let crawlerHtml = '';
+    //防止乱码
+    res.setEncoding('utf-8');
+    //接收数据过程中拼接数据
+    res.on('data', (item) => {
+            crawlerHtml += item
+        })
+        //接收完成后进行的操作
+    res.on('end', () => {
+        let files = [];
+        // console.log(crawlerHtml)
+        const $ = cheerio.load(crawlerHtml);
+        //找到需要爬取的片段
+        $('.pics-list-price ul li').each((index, value) => {
+            //找到标题
+            let title = $(value).find('h2').text();
+            let list = {
+                    title
+                }
+                //放到数组中
+            files.push(list)
+        });
+        //放入文件 如果没有则生成该文件
+        fs.appendFileSync('./hellow.json', JSON.stringify(files, "", '\t'))
+    })
+})
+```
+
