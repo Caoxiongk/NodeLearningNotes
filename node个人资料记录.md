@@ -76,6 +76,20 @@ module.exports = {
 2、引用 b.a
 ```
 
+***3、module.exports***
+
+```
+当module.exports = a 
+那么页面中引用的方法为let b= require('js路径')引入js文件
+当module.exports = {
+a
+}
+那么页面中引用的方法为let b= require('js路径')引入js文件
+引用 b.a
+```
+
+
+
 ## PATH路径
 
 ***path.normalize .当前目录 ..跳出当前目录***  
@@ -389,7 +403,194 @@ nodemon ./main.js localhost 6677 // 在本地6677端口启动node服务
 ## chalk让打印五颜六色
 
 ```
+npm i chalk
 const chalk= require('chalk');
 console.log(chalk.red('this is red!'));
+```
+
+## Express框架
+
+##### ***1、安装***
+
+```
+yarn init
+npm install express --save
+```
+
+##### ***2、案例***
+
+```
+const express = require('express')
+const app = express()
+const chalk = require('chalk');
+let port = 3000
+    //err失败就带有值 成功代表没值
+app.listen(port, (err) => {
+    if (err) {
+        console.log(chalk.red('启动失败'))
+    } else {
+        console.log(chalk.green('启动成功'))
+        console.log(chalk.green(`访问地址:http://localhost:${port}`))
+    }
+})
+```
+
+##### ***3、请求第三方接口***
+
+```
+//node请求第三方接口---追书神器 request需要安装
+var request = require("request");
+var url = "http://api.zhuishushenqi.com/cats/lv2/statistics";
+request(
+  {
+    url: url,
+    method: "GET",
+    json: true,
+    headers: {
+      "content-type": "application/json",
+      "User-Agent": "chrunleeAutoLogin",
+    },
+  },
+  (error, response, body) => {
+    if (!error && response.statusCode == 200) {
+      console.log(body); // 请求成功的处理逻辑
+    }
+  }
+);
+```
+
+##### ***4、res相应的方法***
+
+```
+res.download() 提示要下载的文件
+res.end() 结束响应过程
+res.json() 发送json响应
+res.redirect() 重定向
+res.render() 呈现视图模板
+res.send() 发送各种响应类型
+res.sendStatus() 设置响应状态码并将其字符串表示形式作为相应主体发送
+res.status() 设置响应状态码
+res.sendFile('./text.txt') 发送文件
+```
+
+##### ***5、req的监听***
+
+```
+方法1
+req.on('oppo') 创建
+req.on('data',(bf)=>{}) 接收数据时触发的事件
+req.on('error',()=>{})  错误触发的事件
+req.on('end',()=>{}) 数据接收完毕后触发的时间
+```
+
+```
+方法2
+try{
+
+}.catch(err){
+
+}
+```
+
+```
+总结:看个人喜好，个人更推荐第一种
+```
+
+##### **6、*http和express结合使用***
+
+```
+const express = require("express");
+const app = express();
+const http = require("http");
+const serve = http.createServer(app);
+const colors = require("colors-console");
+const port = 3000;
+const url = require("url");
+app.get("/login", (req, res) => {
+  console.log("123");
+  console.log(req);
+  res.write("亲爱的Caoxiong，您当前访问的是登录API,GET请求");
+  res.end("");
+});
+serve.listen(port, () => {
+  console.log(colors("green", `访问地址:http://localhost:${port}来启动服务`));
+});
+```
+
+##### ***7、app路由next的使用***
+
+```
+//router表示跳出当前，即代码只执行到这一块 next代表往下执行
+app.post("/manyTimes", [
+  (req, res, next) => {
+    res.write("请求的第一个方法");
+    next(router);
+  },
+  (req, res, next) => {
+    res.write("请求的第二个方法");
+    next();
+  },
+  (req, res, next) => {
+    res.write("请求的第三个方法");
+    res.end();
+  },
+]);
+```
+
+##### ***8、路由中间件(用于请求接口前要做的事情，例如拦截)***
+
+```
+//中间件 主要用于在请求前处理某些操作 如果成功就用next往下走 否则就停在这里 统一处理大家公共部分
+// /和*都能匹配所有的请求
+app.use("/", (res, req,next) => {
+  console.log(res.url);
+});
+
+app.post("/logins", (req, res, next) => {
+  res.write("亲爱的Caoxiong，您当前访问的是登录logins,POST请求");
+  res.end("");
+});
+```
+
+##### ***9、处理请求的方法(规定前端使用formData还是json进行传值)***
+
+```
+方法1
+//处理请求的方法
+app.use(express.urlencoded); //前端传值必须为x-www-from-urlencoded
+app.use(express.json); //前端传值必须为json raw
+//在请求中 用req.body获得接收的参数
+```
+
+```
+方法2
+通过判断res.headers.ty来进行判断前端的处理方法
+```
+
+***10、路由器(跳转不同的接口，方法统一)***
+
+```
+router.js
+
+const {Router} = require('express')
+const router = new Router()
+
+router.get('/login',()=>{
+
+})
+
+module.exports = router;
+```
+
+```
+app.js
+
+const router = require('./router.js')
+app.use('/api',router)
+```
+
+```
+调用
+localhost/api/login
 ```
 
